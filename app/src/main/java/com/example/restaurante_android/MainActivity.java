@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     List<Mesa> mesas = new ArrayList<>();
     Button btnMesa1, btnMesa2, btnMesa3, btnMesa4, btnMesa5;
     List<Button> btnMesas = new ArrayList<>();
-
+//hola
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
