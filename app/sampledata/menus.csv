@@ -1,0 +1,14 @@
+tipo,descripcion,precio,rutaImagen
+Entrante,Croquetas de carabineros,6.95,R.drawable.default
+Entrante,Patatas bravas,5.95,R.drawable.default
+Entrante,Tortilla paisana con cebolla y chorizo,10,R.drawable.default
+Entrante,Pulpo a la gallega,12.95,R.drawable.default
+Entrante,Hamburguesa smash burguer clásica,6,R.drawable.default
+Plato principal,Entrecot de ternera gallega a la parrilla,23,R.drawable.default
+Plato principal,Trucha arcoíris al horno con cecina y puré de coliflor,25,R.drawable.default
+Plato principal,Paella de marisco valenciana auténtica, 24,R.drawable.default
+Plato principal,Pizza napolitana clásica gigante, 20,R.drawable.default
+Bebida,Agua,3,R.drawable.default
+Bebida,Refresco cola,4,R.drawable.default
+Bebida,Cerveza,5,R.drawable.default
+Bebida,Rioja crianza,9.45,R.drawable.default
