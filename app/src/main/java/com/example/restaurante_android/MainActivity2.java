@@ -1,6 +1,8 @@
 package com.example.restaurante_android;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +11,9 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity2 extends AppCompatActivity {
+
+    TextView txtPedidos;
+    Mesa mesaSeleccionada;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,10 +27,20 @@ public class MainActivity2 extends AppCompatActivity {
             return insets;
         });
 
+        Intent datoRecibido = getIntent();
+        if (datoRecibido != null) {
+            mesaSeleccionada = new Mesa(datoRecibido.getStringArrayExtra("mesa"));
+        }
+
+        System.out.println(mesaSeleccionada);
         activarComponentesActivity();
     }
 
     public void activarComponentesActivity() {
+        txtPedidos = findViewById(R.id.txtVistaPedidos);
+        String titulo = "PEDIDOS MESA " + (Integer.parseInt(mesaSeleccionada.getNumero()) + 1);
+        txtPedidos.setText(titulo);
+
 
     }
 

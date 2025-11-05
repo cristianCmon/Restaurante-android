@@ -25,9 +25,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
 
     List<Mesa> mesas = new ArrayList<>();
+    int indiceMesa = 0;
     Button btnMesa1, btnMesa2, btnMesa3, btnMesa4, btnMesa5;
     List<Button> btnMesas = new ArrayList<>();
-//hola
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,8 +49,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MESA", "1");
-
-
+                indiceMesa = 0;
                 cambiarActivity();
             }
         });
@@ -60,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MESA", "2");
+                indiceMesa = 1;
                 cambiarActivity();
             }
         });
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MESA", "3");
+                indiceMesa = 2;
                 cambiarActivity();
             }
         });
@@ -78,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MESA", "4");
+                indiceMesa = 3;
                 cambiarActivity();
             }
         });
@@ -87,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Log.d("MESA", "5");
+                indiceMesa = 4;
                 cambiarActivity();
             }
         });
@@ -102,7 +105,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void cambiarActivity() {
+        //realizarPeticionBD("Actualizar");
+
         Intent intent = new Intent(MainActivity.this, MainActivity2.class);
+        intent.putExtra("mesa", mesas.get(indiceMesa).getObjetoSerializado());
         startActivity(intent);
     }
 
@@ -146,15 +152,28 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case "Actualizar":
-                //TODO IMPLEMENTAR ESTADO MESAS ACTUALIZANDO BD
-//                Call<Mesa> actualizar = api.actualizarMesa(
-//
-//
-//                );
+                String idMesa = mesas.get(indiceMesa).getId();
 
+                // Cambiamos estado en base de datos
+                Call<Mesa> actualizar = api.actualizarMesa(
+                    idMesa, true, false
+                );
+                // Y también en el objeto
+                mesas.get(indiceMesa).setOcupada(true);
+
+                actualizar.enqueue(new Callback<Mesa>() {
+                    @Override
+                    public void onResponse(Call<Mesa> call, Response<Mesa> response) {
+                        Toast.makeText(getApplicationContext(), "MESA ACTUALIZADA", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Mesa> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
+                    }
+                });
                 break;
         }
-
 
     }
 

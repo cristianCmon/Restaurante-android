@@ -15,6 +15,13 @@ public class Mesa {
         this.bloqueada = bloqueada;
     }
 
+    public Mesa(String[] propiedades) {
+        this._id = propiedades[0];
+        this.numero = propiedades[1];
+        this.ocupada = Boolean.parseBoolean(propiedades[2]);
+        this.bloqueada = Boolean.parseBoolean(propiedades[3]);
+    }
+
 
     public String getId() {
         return _id;
@@ -48,8 +55,14 @@ public class Mesa {
         this.bloqueada = bloqueada;
     }
 
+
     @Override
     public String toString() {
         return this.getId() + " - " + this.getNumero() + " - " + this.isOcupada() + " - " + this.isBloqueada();
     }
+
+    public String[] getObjetoSerializado() {
+        return new String[]{getId(), getNumero(), Boolean.toString(isOcupada()), Boolean.toString(isBloqueada())};
+    }
+
 }
