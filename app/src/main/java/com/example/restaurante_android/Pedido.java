@@ -67,7 +67,7 @@ public class Pedido {
 
     @Override
     public String toString() {
-        return "Id: " + this._id + " - Tipo " + this.tipo + " - Descripción: " + this.descripcion + " - Precio: " + this.precio;
+        return this._id + " - " + this.tipo + " - " + this.descripcion + " - " + this.precio;
     }
 
 }
