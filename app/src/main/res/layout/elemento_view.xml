@@ -19,7 +19,7 @@
 
     <TextView
         android:id="@+id/txtTipo"
-        android:layout_width="175dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:textColor="@color/black"
@@ -30,7 +30,7 @@
 
     <TextView
         android:id="@+id/txtDescripcion"
-        android:layout_width="175dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         app:layout_constraintStart_toEndOf="@+id/imgPedido"
@@ -39,7 +39,7 @@
 
     <TextView
         android:id="@+id/txtPrecio"
-        android:layout_width="175dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         app:layout_constraintStart_toEndOf="@+id/imgPedido"
@@ -48,12 +48,9 @@
 
     <CheckBox
         android:id="@+id/checkEscoger"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_marginEnd="10dp"
-        android:text="Elegir"
-        tools:layout_editor_absoluteX="305dp"
-        tools:layout_editor_absoluteY="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -61,13 +58,18 @@
 
     <Spinner
         android:id="@+id/spCantidad"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_marginEnd="10dp"
+        android:layout_width="75dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/checkEscoger"
-        tools:layout_editor_absoluteX="297dp"
-        tools:layout_editor_absoluteY="17dp" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/imgPedido"
+        android:layout_marginTop="10dp"
+        android:background="#DAD8D8" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

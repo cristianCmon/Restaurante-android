@@ -67,6 +67,16 @@ public class Elemento {
         return precio;
     }
 
+    public String getPrecioFormateado() {
+        String precioFormateado = Double.toString(this.precio);
+
+        if (precioFormateado.endsWith(".0")) {
+            precioFormateado = precioFormateado.substring(0, precioFormateado.length() - 2);
+        }
+
+        return precioFormateado + "€";
+    }
+
     public void setPrecio(double precio) {
         this.precio = precio;
     }
