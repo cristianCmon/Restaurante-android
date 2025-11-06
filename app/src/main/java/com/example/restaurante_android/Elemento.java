@@ -8,6 +8,7 @@ public class Elemento {
     private String descripcion;
     private double precio;
     private String rutaImagen;
+    private int cantidad;
 
 
     public Elemento(String tipo, String descripcion, double precio, String rutaImagen) {
@@ -89,4 +90,20 @@ public class Elemento {
         this.rutaImagen = rutaImagen;
     }
 
+    public int getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    @Override
+    public String toString() {
+        return _id + " | " + descripcion + " - " + cantidad;
+    }
+
+    public String[] serializarStringArray() {
+        return new String[] {_id, tipo, descripcion, Double.toString(precio), rutaImagen, String.valueOf(cantidad)};
+    }
 }

@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class MainActivity2 extends AppCompatActivity {
     Mesa mesaSeleccionada;
     List<Pedido> pedidos = new ArrayList<>();
     List<Elemento> elementos = new ArrayList<>();
+    List<Elemento> elementosSeleccionados = new ArrayList<>();
 
 
     @Override
@@ -74,6 +77,8 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(View v) {
                 //TODO LANZAR VISTA ENVIAR PEDIDO Y VOLVER A VISTA PEDIDO
                 System.out.println("PEDIR");
+
+                buscarPedidosSeleccionados();
             }
         });
 
@@ -129,5 +134,17 @@ public class MainActivity2 extends AppCompatActivity {
                 Log.d("ERROR", t.toString());
             }
         });
+    }
+
+    public void buscarPedidosSeleccionados() {
+//        for (int i = 0; recyclerView.get)
+
+        if (elementosSeleccionados != null && !elementosSeleccionados.isEmpty()) {
+            for (Elemento e : elementosSeleccionados) {
+                System.out.println(e);
+            }
+        } else {
+            System.out.println("SIN PEDIDOS");
+        }
     }
 }

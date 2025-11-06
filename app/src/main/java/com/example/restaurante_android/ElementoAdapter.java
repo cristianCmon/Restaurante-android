@@ -44,7 +44,6 @@ public class ElementoAdapter extends RecyclerView.Adapter<ElementoViewHolder> {
         //holder.imagen.setImageResource(elementos.get(position).getRutaImagen());
 
         // Create an ArrayAdapter using the string array and a default spinner layout.
-
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
             applicationContext,
             R.array.array_cantidades,
@@ -64,14 +63,26 @@ public class ElementoAdapter extends RecyclerView.Adapter<ElementoViewHolder> {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                System.out.println("SPINNER SALIDO");
+                //System.out.println("SPINNER SALIDO");
             }
         });
+
 
         holder.confirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 System.out.println("CHECKBOX PULSADO");
+                elemento.setCantidad(Integer.parseInt(holder.cantidad.getSelectedItem().toString()));
+                System.out.println(elemento);
+                //TODO EXTRAER ELEMENTOS CHECKEADOS PARA HACER PEDIDO
+
+                //Intent intent = new Intent(applicationContext, MainActivity2.class);
+
+                // necesario setear esta bandera o lanzará excepción
+//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                // pasamos contenido del elemento pulsado al nuevo activity
+//                intent.putExtra("OBJETO_PEDIDO", elemento.serializarStringArray());
             }
         });
 
