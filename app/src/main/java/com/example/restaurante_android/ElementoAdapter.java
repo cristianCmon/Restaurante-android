@@ -7,11 +7,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ElementoAdapter extends RecyclerView.Adapter<ElementoViewHolder> {
@@ -20,6 +22,9 @@ public class ElementoAdapter extends RecyclerView.Adapter<ElementoViewHolder> {
     Context activityContext;
     List<Elemento> elementos;
 
+
+    public static List<Elemento> seleccionados = new ArrayList<>();
+    public static List<Elemento> facturaFinal = new ArrayList<>();
 
     public ElementoAdapter(Context applicationContext, List<Elemento> elementos, Context activityContext) {
         this.applicationContext = applicationContext;
@@ -59,6 +64,10 @@ public class ElementoAdapter extends RecyclerView.Adapter<ElementoViewHolder> {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 System.out.println("SPINNER PULSADO - " + parent.getSelectedItem().toString());
+                if (holder.confirmar.isChecked()) {
+                    seleccionados.remove(elemento);
+                    holder.confirmar.setChecked(false);
+                }
             }
 
             @Override
@@ -71,10 +80,16 @@ public class ElementoAdapter extends RecyclerView.Adapter<ElementoViewHolder> {
         holder.confirmar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boolean comprobado = ((CheckBox)v).isChecked();
 
-                System.out.println("CHECKBOX PULSADO");
-                elemento.setCantidad(Integer.parseInt(holder.cantidad.getSelectedItem().toString()));
-                System.out.println(elemento);
+                if (comprobado) {
+                    System.out.println("CHECKBOX PULSADO");
+                    elemento.setCantidad(Integer.parseInt(holder.cantidad.getSelectedItem().toString()));
+                    seleccionados.add(elemento);
+                } else {
+                    System.out.println("CHECKBOX DES-pulsado");
+                    seleccionados.remove(elemento);
+                }
                 //TODO EXTRAER ELEMENTOS CHECKEADOS PARA HACER PEDIDO
 
                 //Intent intent = new Intent(applicationContext, MainActivity2.class);

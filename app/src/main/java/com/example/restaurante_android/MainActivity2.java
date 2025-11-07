@@ -1,14 +1,18 @@
 package com.example.restaurante_android;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -22,6 +26,8 @@ import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -37,7 +43,6 @@ public class MainActivity2 extends AppCompatActivity {
     Mesa mesaSeleccionada;
     List<Pedido> pedidos = new ArrayList<>();
     List<Elemento> elementos = new ArrayList<>();
-    List<Elemento> elementosSeleccionados = new ArrayList<>();
 
 
     @Override
@@ -75,29 +80,135 @@ public class MainActivity2 extends AppCompatActivity {
         btnPedir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO LANZAR VISTA ENVIAR PEDIDO Y VOLVER A VISTA PEDIDO
+                //TODO REFACTORIZAR ALERTS Y IMPLEMENTAR PROGRESSBAR
                 System.out.println("PEDIR");
-
                 buscarPedidosSeleccionados();
             }
         });
 
         // BOTÓN PAGAR
         btnPagar = findViewById(R.id.btnPagarPedido);
-        btnPagar.setEnabled(false);
+        if (ElementoAdapter.facturaFinal.isEmpty()) {
+            btnPagar.setEnabled(false);
+        } else {
+            btnPagar.setEnabled(true);
+        }
+
         btnPagar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO LANZAR VISTA PAGO Y VOLVER A VISTA PRINCIPAL
-                System.out.println("PAGAR");
+                //TODO REFACTORIZAR ALERTS Y IMPLEMENTAR PROGRESSBAR
+                mostrarFacturaFinal();
             }
         });
 
         realizarPeticionBD();
     }
 
+    public void mostrarFacturaFinal() {
+        String pedidoTotal = "";
+        double precioPedido = 0;
+        String precioFormateado = "";
+
+        for (Elemento e : ElementoAdapter.facturaFinal) {
+            pedidoTotal += e.getCantidad() + "x  "+e.getDescripcion() + "\n";
+            precioPedido += e.getPrecio() * e.getCantidad();
+            System.out.println(e);
+        }
+
+        precioFormateado = Double.toString(precioPedido);
+
+        if (precioFormateado.endsWith(".0")) {
+            precioFormateado = precioFormateado.substring(0, precioFormateado.length() - 2);
+        }
+
+        pedidoTotal += "\n\nPrecio Final: " + precioFormateado + "€\n";
+
+        AlertDialog.Builder alertFacturaFinal = new AlertDialog.Builder(this);
+        alertFacturaFinal.setTitle("Factura Mesa " + (Integer.parseInt(mesaSeleccionada.getNumero()) + 1));
+        alertFacturaFinal.setMessage("\n" + pedidoTotal);
+        alertFacturaFinal.setCancelable(false);
+
+        alertFacturaFinal.setPositiveButton("Pagar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+//                ElementoAdapter.alertFacturaFinal.addAll(ElementoAdapter.seleccionados);
+//                ElementoAdapter.seleccionados.clear();
+                dialog.dismiss();
+//                reiniciarActivity();
+            }
+        });
+
+        alertFacturaFinal.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                System.out.println("CANCELAR");
+                dialog.cancel();
+            }
+        });
+
+        alertFacturaFinal.show();
+    }
+
+    public void buscarPedidosSeleccionados() {
+        String pedido = "";
+        double precioPedido = 0;
+        String precioFormateado = "";
+
+        for (Elemento e : ElementoAdapter.seleccionados) {
+            pedido += e.getCantidad() + "x  "+e.getDescripcion() + "\n";
+            precioPedido += e.getPrecio() * e.getCantidad();
+        }
+
+        precioFormateado = Double.toString(precioPedido);
+
+        if (precioFormateado.endsWith(".0")) {
+            precioFormateado = precioFormateado.substring(0, precioFormateado.length() - 2);
+        }
+
+        if (ElementoAdapter.facturaFinal.isEmpty()) {
+            pedido += "\n\nPrecio total: " + precioFormateado + "€\n";
+
+        } else {
+            double precioFacturasAnteriores = 0;
+            for (Elemento e : ElementoAdapter.facturaFinal) {
+                precioFacturasAnteriores += e.getPrecio() * e.getCantidad();
+            }
+            pedido += "\n\nPrecio total pedido: " + precioFormateado + "€ (+" + precioFacturasAnteriores + "€)\n";
+        }
+
+        AlertDialog.Builder alertRealizarPedido = new AlertDialog.Builder(this);
+        alertRealizarPedido.setTitle("Pedido Mesa " + (Integer.parseInt(mesaSeleccionada.getNumero()) + 1));
+        alertRealizarPedido.setMessage("\n" + pedido);
+        alertRealizarPedido.setCancelable(false);
+
+        alertRealizarPedido.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
+                ElementoAdapter.seleccionados.clear();
+                dialog.dismiss();
+                reiniciarActivity();
+            }
+        });
+
+        alertRealizarPedido.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                System.out.println("CANCELAR");
+                dialog.cancel();
+            }
+        });
+
+        alertRealizarPedido.show();
+    }
+
     public void cambiarActivity() {
 
+    }
+
+    public void reiniciarActivity() {
+        this.recreate();
     }
 
     public void realizarPeticionBD() {
@@ -136,15 +247,4 @@ public class MainActivity2 extends AppCompatActivity {
         });
     }
 
-    public void buscarPedidosSeleccionados() {
-//        for (int i = 0; recyclerView.get)
-
-        if (elementosSeleccionados != null && !elementosSeleccionados.isEmpty()) {
-            for (Elemento e : elementosSeleccionados) {
-                System.out.println(e);
-            }
-        } else {
-            System.out.println("SIN PEDIDOS");
-        }
-    }
 }
