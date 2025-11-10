@@ -43,6 +43,7 @@ public class MainActivity2 extends AppCompatActivity {
     RecyclerView recyclerView;
     TextView txtPedidos;
     Button btnPedir, btnPagar;
+    Dialog customPB;
     Mesa mesaSeleccionada;
     List<Pedido> pedidos = new ArrayList<>();
     List<Elemento> elementos = new ArrayList<>();
@@ -105,6 +106,11 @@ public class MainActivity2 extends AppCompatActivity {
             }
         });
 
+        // MENSAJE BLOQUEO USUARIO
+        customPB = new Dialog(this);
+        customPB.setContentView(R.layout.barra_progreso_view);
+        customPB.setCancelable(false);
+
         realizarPeticionBD();
     }
 
@@ -137,6 +143,7 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
 //                ElementoAdapter.alertFacturaFinal.addAll(ElementoAdapter.seleccionados);
 //                ElementoAdapter.seleccionados.clear();
+                // TODO ENVIAR COMANDA FINAL BASE DE DATOS CON FECHA
                 dialog.dismiss();
 //                reiniciarActivity();
             }
@@ -145,7 +152,6 @@ public class MainActivity2 extends AppCompatActivity {
         alertFacturaFinal.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                System.out.println("CANCELAR");
                 dialog.cancel();
             }
         });
@@ -190,17 +196,15 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
                 ElementoAdapter.seleccionados.clear();
-
-                mostrarBarraProgreso();
-//                dialog.dismiss();
-//                reiniciarActivity();
+                // TODO ENVIAR COMANDA BASE DE DATOS
+                mostrarPantallaBloqueo();
+                dialog.dismiss();
             }
         });
 
         alertRealizarPedido.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                System.out.println("CANCELAR");
                 dialog.cancel();
             }
         });
@@ -208,40 +212,29 @@ public class MainActivity2 extends AppCompatActivity {
         alertRealizarPedido.show();
     }
 
-    public void mostrarBarraProgreso() {
-        Dialog customPB = new Dialog(this);
-        customPB.setContentView(R.layout.barra_progreso_view);
-        customPB.setCancelable(false);
-
+    public void mostrarPantallaBloqueo() {
         mesaSeleccionada.setBloqueada(true);
+        realizarPeticionBD2("Actualizar");
         customPB.show();
-
-        escucharBD();
-        //bloquearMesa();
-
-//        do {
-//            escucharBD();
-//        } while (mesaSeleccionada.isBloqueada());
-//        if (mesaSeleccionada.isBloqueada()) {
-//            customPB.show();
-//        } else {
-//            customPB.dismiss();
-//        }
-
-//        customPB.dismiss();
+        bloquearDispositivo();
     }
 
-    public void escucharBD() {
+    public void bloquearDispositivo() {
         final Handler handler = new Handler();
-        final int delay = 1000; // 1000 milliseconds == 1 second
+        final int delay = 2000; // 2 segundos
 
         handler.postDelayed(new Runnable() {
             public void run() {
-                System.out.println("myHandler: here!"); // Do your work here
                 handler.postDelayed(this, delay);
 
+                realizarPeticionBD2("Leer");
+
                 if (!mesaSeleccionada.isBloqueada()) {
+                    // https://stackoverflow.com/questions/7407242/how-to-cancel-handler-postdelayed
                     handler.removeCallbacksAndMessages(null);
+                    customPB.dismiss();
+                    reiniciarActivity();
+                    Toast.makeText(getApplicationContext(), "PEDIDO PROCESADO", Toast.LENGTH_LONG).show();
                 }
             }
         }, delay);
@@ -272,7 +265,6 @@ public class MainActivity2 extends AppCompatActivity {
                 List<Pedido> data = response.body();
                 // cargamos documentos obtenidos de la bd como elementos de la lista
                 for (Pedido p : data) {
-                    //pedidos.add(new Pedido(p.getId(), p.getTipo(), p.getDescripcion(), p.getPrecio(), p.getRutaImagen()));
                     elementos.add(new Elemento(p));
                 }
 
@@ -289,6 +281,58 @@ public class MainActivity2 extends AppCompatActivity {
                 Log.d("ERROR", t.toString());
             }
         });
+    }
+
+    public void realizarPeticionBD2(String tipo) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:3000")
+                .addConverterFactory(GsonConverterFactory
+                        .create()).build();
+
+        ApiMongo api = retrofit.create(ApiMongo.class);
+
+        switch (tipo) {
+            case "Leer":
+                Call<Mesa> llamada = api.leerMesaLocal(mesaSeleccionada.getId());
+
+                llamada.enqueue(new Callback<Mesa>() {
+                    @Override
+                    public void onResponse(Call<Mesa> call, Response<Mesa> response) {
+                        // en el body de la respuesta están los documentos de la colección
+                        Mesa data = response.body();
+                        // cargamos documentos obtenidos de la bd como elementos de la lista
+                        mesaSeleccionada.setBloqueada(data.isBloqueada());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Mesa> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
+                        Log.d("ERROR", t.toString());
+                    }
+                });
+                break;
+
+            case "Actualizar":
+                String idMesa = mesaSeleccionada.getId();
+
+                // Cambiamos estado en base de datos
+                Call<Mesa> actualizar = api.actualizarMesa(
+                        idMesa, mesaSeleccionada.isOcupada(), mesaSeleccionada.isBloqueada()
+                );
+
+                actualizar.enqueue(new Callback<Mesa>() {
+                    @Override
+                    public void onResponse(Call<Mesa> call, Response<Mesa> response) {
+                        Toast.makeText(getApplicationContext(), "MESA ACTUALIZADA", Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onFailure(Call<Mesa> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
+                    }
+                });
+                break;
+        }
     }
 
 }

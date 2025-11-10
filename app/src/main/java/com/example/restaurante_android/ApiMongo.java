@@ -16,6 +16,11 @@ public interface ApiMongo {
     @GET("mesas")
     Call<List<Mesa>> leerMesasLocal();
 
+    @GET("mesas/{id}")
+    Call<Mesa> leerMesaLocal(
+        @Path("id") String id
+    );
+
     @GET("menus")
     Call<List<Pedido>> leerMenusLocal();
 

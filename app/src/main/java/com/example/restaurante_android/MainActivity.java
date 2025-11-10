@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void cambiarActivity() {
-        //realizarPeticionBD("Actualizar");
+        realizarPeticionBD("Actualizar");
 
         Intent intent = new Intent(MainActivity.this, MainActivity2.class);
         intent.putExtra("mesa", mesas.get(indiceMesa).getObjetoSerializado());
