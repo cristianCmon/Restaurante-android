@@ -28,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -111,6 +112,7 @@ public class MainActivity2 extends AppCompatActivity {
         customPB.setContentView(R.layout.barra_progreso_view);
         customPB.setCancelable(false);
 
+        // OBTENER MENUS DE BD Y CARGAR ELEMENTOS
         realizarPeticionBD();
     }
 
@@ -160,6 +162,7 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void buscarPedidosSeleccionados() {
+        crearComanda(); // TODO CAPTURAR ID
         String pedido = "";
         double precioPedido = 0;
         String precioFormateado = "";
@@ -215,6 +218,7 @@ public class MainActivity2 extends AppCompatActivity {
     public void mostrarPantallaBloqueo() {
         mesaSeleccionada.setBloqueada(true);
         realizarPeticionBD2("Actualizar");
+
         customPB.show();
         bloquearDispositivo();
     }
@@ -271,7 +275,7 @@ public class MainActivity2 extends AppCompatActivity {
                 for (Pedido p : pedidos) {
                     System.out.println(p);
                 }
-
+                // CARGAR DE ELEMENTOS EL RECYCLERVIEW
                 recyclerView.setAdapter(new ElementoAdapter(getApplicationContext(), elementos, MainActivity2.this));
             }
 
@@ -333,6 +337,40 @@ public class MainActivity2 extends AppCompatActivity {
                 });
                 break;
         }
+    }
+
+    public void crearComanda() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:3000")
+                .addConverterFactory(GsonConverterFactory
+                        .create()).build();
+
+        ApiMongo api = retrofit.create(ApiMongo.class);
+
+        Call<Pedido> llamada = api.crearComanda(
+                "a", "b", "c", "d", new Date().toString()
+        );
+
+        llamada.enqueue(new Callback<Pedido>() {
+            @Override
+            public void onResponse(Call<Pedido> call, Response<Pedido> response) {
+                // en el body de la respuesta están los documentos de la colección
+                //String data = response.body().toString();
+                System.out.println("RESPUESTA");
+                System.out.println(response);
+                System.out.println(response.raw());
+                System.out.println(response.message());
+                System.out.println(response.headers());
+                System.out.println(response.body());
+                System.out.println(response.body().getId());
+            }
+
+            @Override
+            public void onFailure(Call<Pedido> call, Throwable t) {
+                //Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
+                Log.d("ERROR", t.toString());
+            }
+        });
     }
 
 }

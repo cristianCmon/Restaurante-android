@@ -32,6 +32,16 @@ public interface ApiMongo {
         @Field("bloqueada") boolean bloqueada
     );
 
+    @FormUrlEncoded
+    @POST("comandas")
+    Call<Pedido> crearComanda(
+        @Field("id") String id,
+        @Field("tipo") String tipo,
+        @Field("descripcion") String descripcion,
+        @Field("precio") String precio,
+        @Field("rutaImagen") String rutaImagen
+    );
+
 //    @GET("jugadores")
 //    Call<List<Jugador>> leerColeccion();
 //
