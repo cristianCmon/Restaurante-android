@@ -1,9 +1,12 @@
 package com.example.restaurante_android;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -187,8 +190,10 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
                 ElementoAdapter.seleccionados.clear();
-                dialog.dismiss();
-                reiniciarActivity();
+
+                mostrarBarraProgreso();
+//                dialog.dismiss();
+//                reiniciarActivity();
             }
         });
 
@@ -201,6 +206,45 @@ public class MainActivity2 extends AppCompatActivity {
         });
 
         alertRealizarPedido.show();
+    }
+
+    public void mostrarBarraProgreso() {
+        Dialog customPB = new Dialog(this);
+        customPB.setContentView(R.layout.barra_progreso_view);
+        customPB.setCancelable(false);
+
+        mesaSeleccionada.setBloqueada(true);
+        customPB.show();
+
+        escucharBD();
+        //bloquearMesa();
+
+//        do {
+//            escucharBD();
+//        } while (mesaSeleccionada.isBloqueada());
+//        if (mesaSeleccionada.isBloqueada()) {
+//            customPB.show();
+//        } else {
+//            customPB.dismiss();
+//        }
+
+//        customPB.dismiss();
+    }
+
+    public void escucharBD() {
+        final Handler handler = new Handler();
+        final int delay = 1000; // 1000 milliseconds == 1 second
+
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                System.out.println("myHandler: here!"); // Do your work here
+                handler.postDelayed(this, delay);
+
+                if (!mesaSeleccionada.isBloqueada()) {
+                    handler.removeCallbacksAndMessages(null);
+                }
+            }
+        }, delay);
     }
 
     public void cambiarActivity() {
