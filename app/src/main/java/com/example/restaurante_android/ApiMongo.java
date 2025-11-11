@@ -1,5 +1,6 @@
 package com.example.restaurante_android;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -32,15 +33,20 @@ public interface ApiMongo {
         @Field("bloqueada") boolean bloqueada
     );
 
+
     @FormUrlEncoded
     @POST("comandas")
-    Call<Pedido> crearComanda(
-        @Field("id") String id,
-        @Field("tipo") String tipo,
-        @Field("descripcion") String descripcion,
-        @Field("precio") String precio,
-        @Field("rutaImagen") String rutaImagen
+    Call<Comanda> crearComanda(
+            @Field("comanda") Comanda comanda
     );
+
+//    @FormUrlEncoded
+//    @POST("comandas")
+//    Call<Comanda> crearComanda(
+//        @Field("id") String id,
+//        @Field("fecha") String fecha,
+//        @Field("elementosSeleccionados") List<Elemento> elementosSeleccionados
+//    );
 
 //    @GET("jugadores")
 //    Call<List<Jugador>> leerColeccion();

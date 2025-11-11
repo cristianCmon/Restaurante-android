@@ -24,9 +24,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
 
 import org.w3c.dom.Node;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +48,7 @@ public class MainActivity2 extends AppCompatActivity {
     Button btnPedir, btnPagar;
     Dialog customPB;
     Mesa mesaSeleccionada;
+    Comanda comandaMesa;
     List<Pedido> pedidos = new ArrayList<>();
     List<Elemento> elementos = new ArrayList<>();
 
@@ -347,26 +350,35 @@ public class MainActivity2 extends AppCompatActivity {
 
         ApiMongo api = retrofit.create(ApiMongo.class);
 
-        Call<Pedido> llamada = api.crearComanda(
-                "a", "b", "c", "d", new Date().toString()
-        );
 
-        llamada.enqueue(new Callback<Pedido>() {
+//        Call<List<Pedido>> llamada = api.crearComanda(
+//                "id", "tipo", "descripcion", "precio", "imagen"
+//        );
+
+        comandaMesa = new Comanda(new Date().toString(), ElementoAdapter.seleccionados);
+
+        Call<Comanda> llamada = api.crearComanda(comandaMesa);
+
+        llamada.enqueue(new Callback<Comanda>() {
             @Override
-            public void onResponse(Call<Pedido> call, Response<Pedido> response) {
+            public void onResponse(Call<Comanda> call, Response<Comanda> response) {
                 // en el body de la respuesta están los documentos de la colección
-                //String data = response.body().toString();
-                System.out.println("RESPUESTA");
-                System.out.println(response);
-                System.out.println(response.raw());
-                System.out.println(response.message());
-                System.out.println(response.headers());
-                System.out.println(response.body());
-                System.out.println(response.body().getId());
+
+                String idRespuesta = response.body().getId();
+                System.out.println(idRespuesta);
+//                System.out.println("RESPUESTA");
+//                System.out.println(response);
+//                System.out.println(response.raw());
+//                System.out.println(response.message());
+//                System.out.println(response.code());
+//                System.out.println(response.errorBody());
+//                System.out.println(response.headers());
+//                System.out.println(response.body());
+//                System.out.println(response.body().getId());
             }
 
             @Override
-            public void onFailure(Call<Pedido> call, Throwable t) {
+            public void onFailure(Call<Comanda> call, Throwable t) {
                 //Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
                 Log.d("ERROR", t.toString());
             }

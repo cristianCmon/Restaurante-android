@@ -128,6 +128,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<List<Mesa>> call, Response<List<Mesa>> response) {
                         // en el body de la respuesta están los documentos de la colección
+                        System.out.println(response);
+                        System.out.println(response.body());
                         List<Mesa> data = response.body();
                         // cargamos documentos obtenidos de la bd como elementos de la lista
                         for (Mesa m : data) {
