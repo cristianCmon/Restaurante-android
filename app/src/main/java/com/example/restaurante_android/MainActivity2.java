@@ -46,7 +46,7 @@ public class MainActivity2 extends AppCompatActivity {
     RecyclerView recyclerView;
     TextView txtPedidos;
     Button btnPedir, btnPagar;
-    Dialog customPB;
+    Dialog barraProgresoCircular, barraProgresoHorizontal;
     Mesa mesaSeleccionada;
     Comanda comandaMesa;
     List<Pedido> pedidos = new ArrayList<>();
@@ -90,7 +90,8 @@ public class MainActivity2 extends AppCompatActivity {
             public void onClick(View v) {
                 //TODO REFACTORIZAR ALERTS Y IMPLEMENTAR PROGRESSBAR
                 System.out.println("PEDIR");
-                buscarPedidosSeleccionados();
+//                buscarPedidosSeleccionados();
+                mostrarVistaPedidoFactura("Pedir");
             }
         });
 
@@ -106,18 +107,24 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //TODO REFACTORIZAR ALERTS Y IMPLEMENTAR PROGRESSBAR
-                mostrarFacturaFinal();
+//                mostrarFacturaFinal();
+                mostrarVistaPedidoFactura("Pagar");
             }
         });
 
-        // MENSAJE BLOQUEO USUARIO
-        customPB = new Dialog(this);
-        customPB.setContentView(R.layout.barra_progreso_view);
-        customPB.setCancelable(false);
+        // BARRAS PROGRESO BLOQUEANTES USUARIO
+        barraProgresoCircular = new Dialog(this);
+        barraProgresoCircular.setContentView(R.layout.barra_progreso_view);
+        barraProgresoCircular.setCancelable(false);
+
+        barraProgresoHorizontal = new Dialog(this);
+        barraProgresoHorizontal.setContentView(R.layout.barra_progreso2_view);
+        barraProgresoHorizontal.setCancelable(false);
 
         // OBTENER MENUS DE BD Y CARGAR ELEMENTOS
         realizarPeticionBD();
     }
+
 
     public void mostrarFacturaFinal() {
         String pedidoTotal = "";
@@ -130,7 +137,7 @@ public class MainActivity2 extends AppCompatActivity {
             System.out.println(e);
         }
 
-        precioFormateado = Double.toString(precioPedido);
+        precioFormateado = String.format("%.2f", precioPedido);
 
         if (precioFormateado.endsWith(".0")) {
             precioFormateado = precioFormateado.substring(0, precioFormateado.length() - 2);
@@ -174,7 +181,8 @@ public class MainActivity2 extends AppCompatActivity {
             precioPedido += e.getPrecio() * e.getCantidad();
         }
 
-        precioFormateado = Double.toString(precioPedido);
+        precioFormateado = String.format("%.2f", precioPedido);
+//        precioFormateado = Double.toString(precioPedido);
 
         if (precioFormateado.endsWith(".0")) {
             precioFormateado = precioFormateado.substring(0, precioFormateado.length() - 2);
@@ -188,6 +196,7 @@ public class MainActivity2 extends AppCompatActivity {
             for (Elemento e : ElementoAdapter.facturaFinal) {
                 precioFacturasAnteriores += e.getPrecio() * e.getCantidad();
             }
+
             pedido += "\n\nPrecio total pedido: " + precioFormateado + "€ (+" + precioFacturasAnteriores + "€)\n";
         }
 
@@ -219,34 +228,129 @@ public class MainActivity2 extends AppCompatActivity {
         alertRealizarPedido.show();
     }
 
+    public void mostrarVistaPedidoFactura(String tipo) {
+        String pedidoTotal = "";
+        double precioPedido = 0;
+        String precioFormateado = "";
+        String tituloPedidoFactura = "";
+        String accionPedidoFactura = "";
+
+
+        switch (tipo) {
+            case "Pedir":
+                for (Elemento e : ElementoAdapter.seleccionados) {
+                    pedidoTotal += e.getCantidad() + "x  "+e.getDescripcion() + "\n";
+                    precioPedido += e.getPrecio() * e.getCantidad();
+                }
+
+                tituloPedidoFactura = "Pedido Mesa " + (Integer.parseInt(mesaSeleccionada.getNumero()) + 1);
+                accionPedidoFactura = "Confirmar";
+                break;
+
+            case "Pagar":
+                for (Elemento e : ElementoAdapter.facturaFinal) {
+                    pedidoTotal += e.getCantidad() + "x  "+e.getDescripcion() + "\n";
+                    precioPedido += e.getPrecio() * e.getCantidad();
+                }
+
+                tituloPedidoFactura = "Factura Mesa " + (Integer.parseInt(mesaSeleccionada.getNumero()) + 1);
+                accionPedidoFactura = "Pagar";
+                break;
+        }
+
+        precioFormateado = String.format("%.2f", precioPedido);
+
+        if (precioFormateado.endsWith(".00")) {
+            precioFormateado = precioFormateado.substring(0, precioFormateado.length() - 3);
+        }
+
+        switch (tipo) {
+            case "Pedir":
+                if (ElementoAdapter.facturaFinal.isEmpty()) {
+                    pedidoTotal += "\n\nPrecio Total:  " + precioFormateado + "€\n";
+
+                } else {
+                    double precioFacturasAnteriores = 0;
+
+                    for (Elemento e : ElementoAdapter.facturaFinal) {
+                        precioFacturasAnteriores += e.getPrecio() * e.getCantidad();
+                    }
+
+                    pedidoTotal += "\n\nPrecio Total:  " + precioFormateado + "€ (+" + precioFacturasAnteriores + "€)\n";
+                }
+                break;
+
+            case "Pagar":
+                pedidoTotal += "\n\nPrecio Final:  " + precioFormateado + "€\n";
+                break;
+        }
+
+        AlertDialog.Builder alertPedidoFactura = new AlertDialog.Builder(this);
+        alertPedidoFactura.setTitle(tituloPedidoFactura);
+        alertPedidoFactura.setMessage("\n" + pedidoTotal);
+        alertPedidoFactura.setCancelable(false);
+
+        alertPedidoFactura.setPositiveButton(accionPedidoFactura, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //TODO TENER EN CUENTA SI ES PEDIDO O FACTURA
+                mostrarPantallaBloqueo();
+                dialog.dismiss();
+            }
+        });
+
+        alertPedidoFactura.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        alertPedidoFactura.show();
+    }
+
     public void mostrarPantallaBloqueo() {
         // Mientras se muestra la vista de bloqueo al usuario, se envía la comanda a la BD y también se actualiza la mesa en la BD
+
         mesaSeleccionada.setBloqueada(true);
         realizarPeticionBD2("Actualizar");
 
-        customPB.show();
+//        System.out.println("Mesa actualizada");
+//        System.out.println("Creando comanda...");
+
+        barraProgresoCircular.show();
         bloquearDispositivo();
     }
 
     public void bloquearDispositivo() {
-        final Handler handler = new Handler();
-        final int delay = 2000; // 2 segundos
-
-        handler.postDelayed(new Runnable() {
+        Handler manejadorEnvioComanda = new Handler();
+        int retardoComanda = 1000;
+        manejadorEnvioComanda.postDelayed(new Runnable() {
+            @Override
             public void run() {
-                handler.postDelayed(this, delay);
+                crearComanda();
+                System.out.println("Comanda creada");
+            }
+        }, retardoComanda);
+
+        Handler manejadorActualizarMesa = new Handler();
+        final int retardoMesa = 2500;
+
+        manejadorActualizarMesa.postDelayed(new Runnable() {
+            public void run() {
+                manejadorActualizarMesa.postDelayed(this, retardoMesa);
 
                 realizarPeticionBD2("Leer");
 
                 if (!mesaSeleccionada.isBloqueada()) {
                     // https://stackoverflow.com/questions/7407242/how-to-cancel-handler-postdelayed
-                    handler.removeCallbacksAndMessages(null);
-                    customPB.dismiss();
+                    manejadorActualizarMesa.removeCallbacksAndMessages(null);
+                    barraProgresoCircular.dismiss();
                     reiniciarActivity();
-                    Toast.makeText(getApplicationContext(), "PEDIDO PROCESADO", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), "PEDIDO PROCESADO", Toast.LENGTH_LONG).show();
                 }
             }
-        }, delay);
+        }, retardoMesa);
     }
 
     public void cambiarActivity() {
@@ -332,7 +436,7 @@ public class MainActivity2 extends AppCompatActivity {
                 actualizar.enqueue(new Callback<Mesa>() {
                     @Override
                     public void onResponse(Call<Mesa> call, Response<Mesa> response) {
-                        Toast.makeText(getApplicationContext(), "MESA ACTUALIZADA", Toast.LENGTH_LONG).show();
+//                        Toast.makeText(getApplicationContext(), "MESA ACTUALIZADA", Toast.LENGTH_LONG).show();
                     }
 
                     @Override
@@ -374,27 +478,17 @@ public class MainActivity2 extends AppCompatActivity {
             @Override
             public void onResponse(Call<Comanda> call, Response<Comanda> response) {
                 // En esta respuesta obtendremos el id de la comanda generado en Mongo
-
-//                System.out.println(comandaMesa);
                 comandaMesa.setId(response.body().getId());
-//                System.out.println(comandaMesa);
-//                String idRespuesta = response.body().getId();
-//                System.out.println(idRespuesta);
-//                System.out.println("RESPUESTA");
-//                System.out.println(response);
-//                System.out.println(response.raw());
-//                System.out.println(response.message());
-//                System.out.println(response.code());
-//                System.out.println(response.errorBody());
-//                System.out.println(response.headers());
-//                System.out.println(response.body());
-//                System.out.println(response.body().getId());
+
+                // Actualizamos listas en adaptador
+                ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
+                ElementoAdapter.seleccionados.clear();
             }
 
             @Override
             public void onFailure(Call<Comanda> call, Throwable t) {
-                //Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
-                Log.d("ERROR", t.toString());
+                Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
+//                Log.d("ERROR", t.toString());
             }
         });
     }
