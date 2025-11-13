@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.http.DELETE;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -33,11 +32,10 @@ public interface ApiMongo {
         @Field("bloqueada") boolean bloqueada
     );
 
-
     @FormUrlEncoded
     @POST("comandas")
     Call<Comanda> crearComanda(
-            @Field("idmesa") String idmesa,
+            @Field("idMesa") String idMesa,
             @Field("fecha") String fecha,
             @Field("idMenus") List<String> idMenus,
             @Field("cantidadMenus") List<Integer> cantidadMenus

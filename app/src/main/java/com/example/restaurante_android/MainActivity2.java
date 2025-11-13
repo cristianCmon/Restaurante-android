@@ -199,9 +199,11 @@ public class MainActivity2 extends AppCompatActivity {
         alertRealizarPedido.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                crearComanda();
+
                 ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
                 ElementoAdapter.seleccionados.clear();
-                // TODO ENVIAR COMANDA BASE DE DATOS
+
                 mostrarPantallaBloqueo();
                 dialog.dismiss();
             }
@@ -220,7 +222,6 @@ public class MainActivity2 extends AppCompatActivity {
     public void mostrarPantallaBloqueo() {
         // Mientras se muestra la vista de bloqueo al usuario, se envía la comanda a la BD y también se actualiza la mesa en la BD
         mesaSeleccionada.setBloqueada(true);
-        crearComanda();
         realizarPeticionBD2("Actualizar");
 
         customPB.show();
