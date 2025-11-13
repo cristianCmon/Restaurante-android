@@ -25,9 +25,10 @@
     <ProgressBar
         android:id="@+id/pbhBloqueoDialog"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="200dp"
-        android:layout_height="85dp"
+        android:layout_width="260dp"
+        android:layout_height="50dp"
         android:layout_marginTop="40dp"
+        android:indeterminate="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"

@@ -1,5 +1,7 @@
 package com.example.restaurante_android;
 
+import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,6 +10,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -40,7 +44,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-//TODO TERMINAR BARRA HORIZONTAL, CORREGIR PRECIOS DOBLES DIGITOS PEDIDO ANTERIOR, LIMPIEZA GENERAL
+//TODO LIMPIEZA GENERAL
 public class MainActivity2 extends AppCompatActivity {
 
     RecyclerView recyclerView;
@@ -70,8 +74,10 @@ public class MainActivity2 extends AppCompatActivity {
             mesaSeleccionada = new Mesa(datoRecibido.getStringArrayExtra("mesa"));
         }
 
-        System.out.println(mesaSeleccionada);
         activarComponentesActivity();
+
+        // OBTENER MENUS DE BD Y CARGAR ELEMENTOS
+        realizarPeticionBD();
     }
 
     public void activarComponentesActivity() {
@@ -88,9 +94,6 @@ public class MainActivity2 extends AppCompatActivity {
         btnPedir.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO REFACTORIZAR ALERTS Y IMPLEMENTAR PROGRESSBAR
-                System.out.println("PEDIR");
-//                buscarPedidosSeleccionados();
                 mostrarVistaPedidoFactura("Pedir");
             }
         });
@@ -106,13 +109,11 @@ public class MainActivity2 extends AppCompatActivity {
         btnPagar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO REFACTORIZAR ALERTS Y IMPLEMENTAR PROGRESSBAR
-//                mostrarFacturaFinal();
                 mostrarVistaPedidoFactura("Pagar");
             }
         });
 
-        // BARRAS PROGRESO BLOQUEANTES USUARIO
+        // CARGA LAYOUTS PROGRESSBAR EN DIALOGS
         barraProgresoCircular = new Dialog(this);
         barraProgresoCircular.setContentView(R.layout.barra_progreso_view);
         barraProgresoCircular.setCancelable(false);
@@ -120,9 +121,6 @@ public class MainActivity2 extends AppCompatActivity {
         barraProgresoHorizontal = new Dialog(this);
         barraProgresoHorizontal.setContentView(R.layout.barra_progreso2_view);
         barraProgresoHorizontal.setCancelable(false);
-
-        // OBTENER MENUS DE BD Y CARGAR ELEMENTOS
-        realizarPeticionBD();
     }
 
     public void mostrarVistaPedidoFactura(String tipoAccion) {
@@ -168,12 +166,15 @@ public class MainActivity2 extends AppCompatActivity {
 
                 } else {
                     double precioFacturasAnteriores = 0;
+                    String precioFacturasAnterioresFormateado;
 
                     for (Elemento e : ElementoAdapter.facturaFinal) {
                         precioFacturasAnteriores += e.getPrecio() * e.getCantidad();
                     }
 
-                    pedidoTotal += "\n\nPrecio Total:  " + precioFormateado + "€ (+" + precioFacturasAnteriores + "€)\n";
+                    precioFacturasAnterioresFormateado = String.format("%.2f", precioFacturasAnteriores);
+
+                    pedidoTotal += "\n\nPrecio Total:  " + precioFormateado + "€  (+" + precioFacturasAnterioresFormateado + "€)\n";
                 }
                 break;
 
@@ -190,7 +191,6 @@ public class MainActivity2 extends AppCompatActivity {
         alertPedidoFactura.setPositiveButton(accionPedidoFactura, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                //TODO TENER EN CUENTA SI ES PEDIDO O FACTURA
                 mostrarPantallaBloqueo(tipoAccion);
                 dialog.dismiss();
             }
@@ -268,8 +268,10 @@ public class MainActivity2 extends AppCompatActivity {
                 manejadorDespacharCliente.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        // Limpiamos las listas del adaptador
                         ElementoAdapter.facturaFinal.clear();
                         ElementoAdapter.seleccionados.clear();
+
                         barraProgresoHorizontal.dismiss();
                         volverVistaPrincipal();
                     }

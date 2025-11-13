@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
                 actualizar.enqueue(new Callback<Mesa>() {
                     @Override
                     public void onResponse(Call<Mesa> call, Response<Mesa> response) {
-                        Toast.makeText(getApplicationContext(), "MESA ACTUALIZADA", Toast.LENGTH_LONG).show();
+                        //Toast.makeText(getApplicationContext(), "MESA ACTUALIZADA", Toast.LENGTH_LONG).show();
                     }
 
                     @Override
