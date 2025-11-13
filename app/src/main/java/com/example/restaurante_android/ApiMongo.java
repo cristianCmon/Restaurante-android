@@ -37,7 +37,10 @@ public interface ApiMongo {
     @FormUrlEncoded
     @POST("comandas")
     Call<Comanda> crearComanda(
-            @Field("comanda") Comanda comanda
+            @Field("idmesa") String idmesa,
+            @Field("fecha") String fecha,
+            @Field("idMenus") List<String> idMenus,
+            @Field("cantidadMenus") List<Integer> cantidadMenus
     );
 
 //    @FormUrlEncoded

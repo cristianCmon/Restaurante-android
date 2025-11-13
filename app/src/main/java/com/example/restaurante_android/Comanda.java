@@ -5,23 +5,21 @@ import java.util.List;
 public class Comanda {
 
     private String _id;
+    private String idMesa;
     private String fecha;
-    private List<Elemento> elementosSeleccionados;
+    private List<String> idMenus;
+    private List<Integer> cantidadMenus;
 
 
     public Comanda(String _id) {
         this._id = _id;
     }
 
-    public Comanda(String fecha, List<Elemento> elementosSeleccionados) {
+    public Comanda(String idmesa, String fecha, List<String> idMenus, List<Integer> cantidadMenus) {
+        this.idMesa = idmesa;
         this.fecha = fecha;
-        this.elementosSeleccionados = elementosSeleccionados;
-    }
-
-    public Comanda(String _id, String fecha, List<Elemento> elementosSeleccionados) {
-        this._id = _id;
-        this.fecha = fecha;
-        this.elementosSeleccionados = elementosSeleccionados;
+        this.idMenus = idMenus;
+        this.cantidadMenus = cantidadMenus;
     }
 
 
@@ -33,6 +31,14 @@ public class Comanda {
         this._id = _id;
     }
 
+    public String getIdMesa() {
+        return idMesa;
+    }
+
+    public void setIdMesa(String idmesa) {
+        this.idMesa = idmesa;
+    }
+
     public String getFecha() {
         return fecha;
     }
@@ -41,11 +47,24 @@ public class Comanda {
         this.fecha = fecha;
     }
 
-    public List<Elemento> getElementosSeleccionados() {
-        return elementosSeleccionados;
+    public List<String> getIdMenus() {
+        return idMenus;
     }
 
-    public void setElementosSeleccionados(List<Elemento> elementosSeleccionados) {
-        this.elementosSeleccionados = elementosSeleccionados;
+    public void setIdMenus(List<String> idMenus) {
+        this.idMenus = idMenus;
+    }
+
+    public List<Integer> getCantidadMenus() {
+        return cantidadMenus;
+    }
+
+    public void setCantidadMenus(List<Integer> cantidadMenus) {
+        this.cantidadMenus = cantidadMenus;
+    }
+
+    @Override
+    public String toString() {
+        return "id: " + this._id + " | mesa: " + this.idMesa + " | fecha: " + this.fecha;
     }
 }

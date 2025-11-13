@@ -165,7 +165,6 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void buscarPedidosSeleccionados() {
-        crearComanda(); // TODO CAPTURAR ID
         String pedido = "";
         double precioPedido = 0;
         String precioFormateado = "";
@@ -219,7 +218,9 @@ public class MainActivity2 extends AppCompatActivity {
     }
 
     public void mostrarPantallaBloqueo() {
+        // Mientras se muestra la vista de bloqueo al usuario, se envía la comanda a la BD y también se actualiza la mesa en la BD
         mesaSeleccionada.setBloqueada(true);
+        crearComanda();
         realizarPeticionBD2("Actualizar");
 
         customPB.show();
@@ -350,22 +351,34 @@ public class MainActivity2 extends AppCompatActivity {
 
         ApiMongo api = retrofit.create(ApiMongo.class);
 
+        // Creación Comanda
+        List<String> idMenus = new ArrayList<>();
+        List<Integer> cantidadMenus = new ArrayList<>();
 
-//        Call<List<Pedido>> llamada = api.crearComanda(
-//                "id", "tipo", "descripcion", "precio", "imagen"
-//        );
+        for (Elemento e : ElementoAdapter.seleccionados) {
+            idMenus.add(e.getId());
+            cantidadMenus.add(e.getCantidad());
+        }
+        // TODO REVISAR INSERCIÓN DE MENÚS Y CANTIDADES
+        comandaMesa = new Comanda(
+                mesaSeleccionada.getId(), new Date().toString(), idMenus, cantidadMenus
+        );
 
-        comandaMesa = new Comanda(new Date().toString(), ElementoAdapter.seleccionados);
-
-        Call<Comanda> llamada = api.crearComanda(comandaMesa);
+        // Envío Comanda a base de datos
+        Call<Comanda> llamada = api.crearComanda(
+                comandaMesa.getIdMesa(), comandaMesa.getFecha(), comandaMesa.getIdMenus(), comandaMesa.getCantidadMenus()
+        );
 
         llamada.enqueue(new Callback<Comanda>() {
             @Override
             public void onResponse(Call<Comanda> call, Response<Comanda> response) {
-                // en el body de la respuesta están los documentos de la colección
+                // En esta respuesta obtendremos el id de la comanda generado en Mongo
 
-                String idRespuesta = response.body().getId();
-                System.out.println(idRespuesta);
+//                System.out.println(comandaMesa);
+                comandaMesa.setId(response.body().getId());
+//                System.out.println(comandaMesa);
+//                String idRespuesta = response.body().getId();
+//                System.out.println(idRespuesta);
 //                System.out.println("RESPUESTA");
 //                System.out.println(response);
 //                System.out.println(response.raw());
