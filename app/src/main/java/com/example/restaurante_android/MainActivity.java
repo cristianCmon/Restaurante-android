@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                         List<Mesa> data = response.body();
                         // cargamos documentos obtenidos de la bd como elementos de la lista
                         for (Mesa m : data) {
-                            mesas.add(new Mesa(m.getId(), m.getNumero(), m.isOcupada(), m.isBloqueada()));
+                            mesas.add(new Mesa(m.getId(), m.getNumero(), m.isOcupada(), m.isBloqueada(), m.getIdComanda()));
                         }
                         // Seteamos los botones de las mesas según estén ocupadas o no
                         for (int i = 0; i < mesas.size(); i++) {
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Cambiamos estado en base de datos
                 Call<Mesa> actualizar = api.actualizarMesa(
-                    idMesa, true, false
+                    idMesa, true, false, ""
                 );
                 // Y también en el objeto
                 mesas.get(indiceMesa).setOcupada(true);

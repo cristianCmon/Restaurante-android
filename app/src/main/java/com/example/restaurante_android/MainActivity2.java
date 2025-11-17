@@ -52,6 +52,7 @@ public class MainActivity2 extends AppCompatActivity {
     Button btnPedir, btnPagar;
     Dialog barraProgresoCircular, barraProgresoHorizontal;
     Mesa mesaSeleccionada;
+    static String idComanda = "";
     Comanda comandaMesa;
     List<Pedido> pedidos = new ArrayList<>();
     List<Elemento> elementos = new ArrayList<>();
@@ -218,6 +219,7 @@ public class MainActivity2 extends AppCompatActivity {
 
             case "Pagar":
                 mesaSeleccionada.setOcupada(false);
+                mesaSeleccionada.setIdComanda("");
                 realizarPeticionBD2("Actualizar");
                 barraProgresoHorizontal.show();
                 bloquearDispositivo(tipoAccion);
@@ -236,7 +238,13 @@ public class MainActivity2 extends AppCompatActivity {
                 manejadorEnvioComanda.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        crearComanda();
+                        if (idComanda.isEmpty()) {
+                            System.out.println("CREAR COMANDA");
+                            crearComanda();
+                        } else {
+                            System.out.println("ACTUALIZAR COMANDA");
+                            actualizarComanda();
+                        }
                     }
                 }, retardoComanda);
 
@@ -272,6 +280,9 @@ public class MainActivity2 extends AppCompatActivity {
                         ElementoAdapter.facturaFinal.clear();
                         ElementoAdapter.seleccionados.clear();
 
+                        // Limpiamos idComanda
+                        idComanda = "";
+
                         barraProgresoHorizontal.dismiss();
                         volverVistaPrincipal();
                     }
@@ -304,16 +315,14 @@ public class MainActivity2 extends AppCompatActivity {
         llamada.enqueue(new Callback<List<Pedido>>() {
             @Override
             public void onResponse(Call<List<Pedido>> call, Response<List<Pedido>> response) {
-                // en el body de la respuesta están los documentos de la colección
+                // TODO ATLAS NO SINCRONIZA BIEN Y LANZA NULL EXCEPTION AQUÍ
                 List<Pedido> data = response.body();
+
                 // cargamos documentos obtenidos de la bd como elementos de la lista
                 for (Pedido p : data) {
                     elementos.add(new Elemento(p));
                 }
 
-                for (Pedido p : pedidos) {
-                    System.out.println(p);
-                }
                 // CARGAR DE ELEMENTOS EL RECYCLERVIEW
                 recyclerView.setAdapter(new ElementoAdapter(getApplicationContext(), elementos, MainActivity2.this));
             }
@@ -360,7 +369,7 @@ public class MainActivity2 extends AppCompatActivity {
 
                 // Cambiamos estado en base de datos
                 Call<Mesa> actualizar = api.actualizarMesa(
-                        idMesa, mesaSeleccionada.isOcupada(), mesaSeleccionada.isBloqueada()
+                        idMesa, mesaSeleccionada.isOcupada(), mesaSeleccionada.isBloqueada(), mesaSeleccionada.getIdComanda()
                 );
 
                 actualizar.enqueue(new Callback<Mesa>() {
@@ -395,13 +404,11 @@ public class MainActivity2 extends AppCompatActivity {
             cantidadMenus.add(e.getCantidad());
         }
         // TODO REVISAR INSERCIÓN DE MENÚS Y CANTIDADES
-        comandaMesa = new Comanda(
-                mesaSeleccionada.getId(), new Date().toString(), idMenus, cantidadMenus
-        );
+        comandaMesa = new Comanda(new Date().toString(), idMenus, cantidadMenus);
 
         // Envío Comanda a base de datos
         Call<Comanda> llamada = api.crearComanda(
-                comandaMesa.getIdMesa(), comandaMesa.getFecha(), comandaMesa.getIdMenus(), comandaMesa.getCantidadMenus()
+                comandaMesa.getFecha(), comandaMesa.getIdMenus(), comandaMesa.getCantidadMenus()
         );
 
         llamada.enqueue(new Callback<Comanda>() {
@@ -409,10 +416,62 @@ public class MainActivity2 extends AppCompatActivity {
             public void onResponse(Call<Comanda> call, Response<Comanda> response) {
                 // En esta respuesta obtendremos el id de la comanda generado en Mongo
                 comandaMesa.setId(response.body().getId());
-
+                mesaSeleccionada.setIdComanda(comandaMesa.getId());
+                // Se requiere usar esta variable estática para no perderla al reiniciar el Activity
+                idComanda = comandaMesa.getId();
                 // Actualizamos listas en adaptador
                 ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
                 ElementoAdapter.seleccionados.clear();
+
+                // Actualizar mesa con idComanda
+                realizarPeticionBD2("Actualizar");
+            }
+
+            @Override
+            public void onFailure(Call<Comanda> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_LONG).show();
+//                Log.d("ERROR", t.toString());
+            }
+        });
+    }
+
+    public void actualizarComanda() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://10.0.2.2:3000")
+                .addConverterFactory(GsonConverterFactory
+                        .create()).build();
+
+        ApiMongo api = retrofit.create(ApiMongo.class);
+
+        // Creación Comanda
+        List<String> idMenus = new ArrayList<>();
+        List<Integer> cantidadMenus = new ArrayList<>();
+
+        for (Elemento e : ElementoAdapter.seleccionados) {
+            idMenus.add(e.getId());
+            cantidadMenus.add(e.getCantidad());
+        }
+
+        comandaMesa = new Comanda(new Date().toString(), idMenus, cantidadMenus);
+//        comandaMesa.setIdMenus(idMenus);
+//        comandaMesa.setCantidadMenus(cantidadMenus);
+
+        // Envío Comanda a base de datos
+        Call<Comanda> llamada = api.actualizarComanda(
+                idComanda, comandaMesa.getFecha(), comandaMesa.getIdMenus(), comandaMesa.getCantidadMenus()
+        );
+
+        llamada.enqueue(new Callback<Comanda>() {
+            @Override
+            public void onResponse(Call<Comanda> call, Response<Comanda> response) {
+                // Requiere actualizar por reinicio de Activity
+                mesaSeleccionada.setIdComanda(idComanda);
+                // Actualizamos listas en adaptador
+                ElementoAdapter.facturaFinal.addAll(ElementoAdapter.seleccionados);
+                ElementoAdapter.seleccionados.clear();
+
+                // Actualizar mesa con idComanda
+                realizarPeticionBD2("Actualizar");
             }
 
             @Override

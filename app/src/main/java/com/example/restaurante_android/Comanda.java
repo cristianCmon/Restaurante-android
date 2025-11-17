@@ -5,21 +5,22 @@ import java.util.List;
 public class Comanda {
 
     private String _id;
-    private String idMesa;
     private String fecha;
     private List<String> idMenus;
     private List<Integer> cantidadMenus;
 
 
+    public Comanda() {};
+
     public Comanda(String _id) {
         this._id = _id;
     }
 
-    public Comanda(String idmesa, String fecha, List<String> idMenus, List<Integer> cantidadMenus) {
-        this.idMesa = idmesa;
+    public Comanda(String fecha, List<String> idMenus, List<Integer> cantidadMenus) {
         this.fecha = fecha;
         this.idMenus = idMenus;
         this.cantidadMenus = cantidadMenus;
+
     }
 
 
@@ -29,14 +30,6 @@ public class Comanda {
 
     public void setId(String _id) {
         this._id = _id;
-    }
-
-    public String getIdMesa() {
-        return idMesa;
-    }
-
-    public void setIdMesa(String idmesa) {
-        this.idMesa = idmesa;
     }
 
     public String getFecha() {
@@ -65,6 +58,6 @@ public class Comanda {
 
     @Override
     public String toString() {
-        return "id: " + this._id + " | mesa: " + this.idMesa + " | fecha: " + this.fecha;
+        return "id: " + this._id + " | fecha: " + this.fecha;
     }
 }

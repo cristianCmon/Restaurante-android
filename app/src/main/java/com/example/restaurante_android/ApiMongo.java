@@ -29,13 +29,22 @@ public interface ApiMongo {
     Call<Mesa> actualizarMesa(
         @Path("id") String id,
         @Field("ocupada") boolean ocupada,
-        @Field("bloqueada") boolean bloqueada
+        @Field("bloqueada") boolean bloqueada,
+        @Field("idComanda") String idComanda
     );
 
     @FormUrlEncoded
     @POST("comandas")
     Call<Comanda> crearComanda(
-            @Field("idMesa") String idMesa,
+            @Field("fecha") String fecha,
+            @Field("idMenus") List<String> idMenus,
+            @Field("cantidadMenus") List<Integer> cantidadMenus
+    );
+
+    @FormUrlEncoded
+    @PUT("comandas/{id}")
+    Call<Comanda> actualizarComanda(
+            @Path("id") String id,
             @Field("fecha") String fecha,
             @Field("idMenus") List<String> idMenus,
             @Field("cantidadMenus") List<Integer> cantidadMenus
